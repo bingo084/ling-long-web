@@ -34,12 +34,19 @@
     <t-layout>
       <t-aside width="fit-content">
         <t-menu :collapsed="collapsed">
-          <t-menu-item value="dashboard">
+          <t-submenu v-for="menu in menus" :title="menu.name" :key="menu.id" :value="menu.id">
             <template #icon>
-              <t-icon name="dashboard" />
+              <t-icon :name="menu.icon" />
             </template>
-            仪表盘
-          </t-menu-item>
+            <t-menu-item
+              v-for="sub in menu.children"
+              :title="sub.name"
+              :key="menu.id"
+              :value="sub.id"
+            >
+              {{ sub.name }}
+            </t-menu-item>
+          </t-submenu>
         </t-menu>
       </t-aside>
       <t-layout>
@@ -51,13 +58,20 @@
   </t-layout>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { api } from '@/api/ApiInstance'
+import { onMounted, ref } from 'vue'
 let collapsed = ref(false)
 let logo = ref('玲珑后台管理系统')
 function changeCollapsed() {
   collapsed.value = !collapsed.value
   logo.value = collapsed.value ? '玲珑' : '玲珑后台管理系统'
 }
+let menus = ref()
+onMounted(() => {
+  api.menuService.findTree().then((res) => {
+    menus.value = res
+  })
+})
 </script>
 <style lang="less" scoped>
 .home {
